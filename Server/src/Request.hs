@@ -8,3 +8,4 @@ import Data.List
 getHeader :: Request -> String -> Maybe String
 getHeader req name = case find (\(headerName, _) -> show headerName == name) (requestHeaders req) of 
     Just (_, value) -> Just (show value)
+    Nothing -> Nothing

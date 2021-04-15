@@ -25,7 +25,8 @@ dependencies:
 - wai >= 3
 - mr-env >= 0.1.0.0
 - http-types
-- bytestring
+- utf8-string
+- case-insensitive
 
 library:
   source-dirs: src

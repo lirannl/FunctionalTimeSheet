@@ -5,7 +5,7 @@ module Lib
   )
 where
 
-import qualified Data.ByteString as ByteS
+import Data.ByteString.UTF8
 import Network.HTTP.Types
 import Network.Wai
 import Network.Wai.Handler.Warp (run)
@@ -22,5 +22,5 @@ entry = do
 
 app :: Request -> (Response -> IO ResponseReceived) -> IO ResponseReceived
 app req respond = do
-  putStrLn $ "Recieved " ++ show (requestMethod req) ++ " request from " ++ definitelyString (getHeader req "X-Forwarded-For")
+  putStrLn $ "Recieved " ++ toString (requestMethod req) ++ " request from " ++ definitelyString (getHeader req "X-Forwarded-For")
   respond $ responseLBS status200 [] "Hello!"

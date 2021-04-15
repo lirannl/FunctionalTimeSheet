@@ -1,0 +1,53 @@
+name:                funcserver
+version:             0.1.0.0
+github:              "lirannl/funcserver"
+license:             GPL3
+author:              "Liran Piade"
+maintainer:          "liranpiade@gmail.com"
+copyright:           "2021 Liran Piade"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            A custom web server
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at NOURL
+
+dependencies:
+- base >= 4.7 && < 5
+- warp >= 3.3.0 && < 4
+- wai >= 3
+- mr-env >= 0.1.0.0
+- http-types
+- bytestring
+
+library:
+  source-dirs: src
+
+executables:
+  exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - funcserver
+
+tests:
+  test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - funcserver

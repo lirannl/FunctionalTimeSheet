@@ -10,6 +10,8 @@ import Network.HTTP.Types
 import Network.Wai
 import Network.Wai.Handler.Warp (run)
 import Settings
+import Helper
+import Request
 
 entry :: IO ()
 entry = do
@@ -20,5 +22,5 @@ entry = do
 
 app :: Request -> (Response -> IO ResponseReceived) -> IO ResponseReceived
 app req respond = do
-  putStrLn $ "Recieved " ++ show (requestMethod req) ++ " request from " ++ show (requestHeaders req)
+  putStrLn $ "Recieved " ++ show (requestMethod req) ++ " request from " ++ definitelyString (getHeader req "X-Forwarded-For")
   respond $ responseLBS status200 [] "Hello!"

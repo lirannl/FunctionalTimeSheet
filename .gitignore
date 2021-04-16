@@ -2,3 +2,4 @@ Server/.stack-work
 Server/*.cabal
 Server/*.lock
 Server/.vscode
+*/.env

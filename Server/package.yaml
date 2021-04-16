@@ -23,10 +23,14 @@ dependencies:
 - base >= 4.7 && < 5
 - warp >= 3.3.0 && < 4
 - wai >= 3
-- mr-env >= 0.1.0.0
+- bytestring
 - http-types
 - utf8-string
 - case-insensitive
+- mongoDB
+- time
+- dotenv
+- regex-tdfa
 
 library:
   source-dirs: src

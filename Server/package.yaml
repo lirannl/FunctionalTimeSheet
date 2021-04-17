@@ -22,7 +22,7 @@ description:         Please see the README on GitHub at NOURL
 dependencies:
 - base >= 4.7 && < 5
 - warp >= 3.3.0 && < 4
-- wai >= 3
+- wai
 - bytestring
 - http-types
 - utf8-string
@@ -36,6 +36,7 @@ dependencies:
 - cryptohash-sha256
 - mtl
 - bson
+- aeson
 
 library:
   source-dirs: src

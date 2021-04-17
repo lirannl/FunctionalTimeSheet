@@ -1,13 +1,20 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Request (getHeader, determineQuery, AppReq (..)) where
 
 import Crypto.Hash.SHA256
-import Data.ByteString.UTF8
+import Data.Aeson
+import Data.ByteString (ByteString)
+import Data.ByteString.Lazy (fromStrict)
+import Data.ByteString.UTF8 (fromString, toString)
 import Data.CaseInsensitive
 import Data.List
 import Data.Time
+import GHC.Generics
 import Network.Wai
 import Settings
 import Text.Read
@@ -19,25 +26,32 @@ getHeader req name =
     Just (_, value) -> Just (toString value)
     Nothing -> Nothing
 
-data AppReq = Hours Int | Date Day | Unauthorised Bool | Invalid
+data AppReq = HoursSubmission Int | DateQuery Day | Unauthorised Bool | Invalid
 
-determineQuery :: Config -> Request -> AppReq
-determineQuery config req =
+newtype Body = Body
+  { hours :: Int
+  }
+  deriving (Generic, Show, ToJSON, FromJSON)
+
+-- Process unauthorised request
+determineQuery :: Config -> Request -> ByteString -> AppReq
+determineQuery config req rawBody =
   case find (\(title, _) -> title == "Authorization") (requestHeaders req) of
     Just (_, secret) ->
       -- If the hash of the provided secret matches
       if hash secret == passwordHash config
-        then determineAuthorisedQuery req
+        then -- Request is authorised - process it
+          determineAuthorisedQuery req rawBody
         else Unauthorised True
     Nothing -> Unauthorised False
 
-determineAuthorisedQuery :: Request -> AppReq
-determineAuthorisedQuery req =
-  case queryString req of
-    [("date", Just dateString)] -> case parseTimeM True defaultTimeLocale "%Y-%-m-%-d" (toString dateString) of
-      Just (d :: Day) -> Date d
+-- Process requests after authorisation
+determineAuthorisedQuery :: Request -> ByteString -> AppReq
+determineAuthorisedQuery req rawBody =
+  case (requestMethod req, queryString req) of
+    (methodGet, [("date", Just dateString)]) -> case parseTimeM True defaultTimeLocale "%Y-%-m-%-d" (toString dateString) of
+      Just (d :: Day) -> DateQuery d
       _ -> Invalid
-    [("hours", Just hoursStr)] -> case readMaybe (toString hoursStr) of
-      Just (hours :: Int) -> Hours hours
-      Nothing -> Invalid
-    _ -> Invalid
+    (methodPost, _) -> case decode $ fromStrict rawBody of
+      Just Body {hours} -> HoursSubmission hours
+      _ -> Invalid

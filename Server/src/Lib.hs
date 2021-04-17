@@ -36,14 +36,15 @@ app config req respond = do
   if debug config
     then putStrLn $ "Recieved " ++ toString (requestMethod req) ++ " request from " ++ definitelyString (getHeader req "X-Forwarded-For")
     else putStr ""
-  case determineQuery config req of
+  rawBody <- getRequestBodyChunk req
+  case determineQuery config req rawBody of
     Unauthorised withPass -> respond $ responseLBS (if withPass then status401 else status403) [] "Unauthorised"
-    Hours hours ->
+    HoursSubmission hours ->
       do
         time <- getCurrentTime
         access pipe master "timesheet" (saveHours hours (utctDay time))
         respond $ responseLBS status200 [] (fromString $ "Submitted " ++ show hours ++ " hours on " ++ show (utctDay time))
-    Date day ->
+    DateQuery day ->
       do
         hours <- access pipe master "timesheet" (getHoursForDay day)
         respond $ responseLBS status200 [] (fromString $ show hours)

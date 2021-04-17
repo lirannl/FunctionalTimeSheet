@@ -23,11 +23,11 @@ entry :: IO ()
 entry = do
   maybeConfig <- do dotenv <- loadFile defaultConfig; env <- getEnvironment; return $ readSettings (env ++ dotenv)
   case maybeConfig of
+    Nothing -> putStrLn "Environment values missing or invalid. Please set them / supply them via .env"
     Just config -> do
       putStrLn $ "Now listening for incoming traffic on port " ++ show (port config)
       if debug config then putStrLn "Running in debug mode!" else putStr ""
       run (port config) (app config)
-    Nothing -> putStrLn "Environment values missing or invalid. Please set them / supply them via .env"
 
 app :: Config -> Request -> (Response -> IO ResponseReceived) -> IO ResponseReceived
 app config req respond = do
@@ -36,8 +36,8 @@ app config req respond = do
   if debug config
     then putStrLn $ "Recieved " ++ toString (requestMethod req) ++ " request from " ++ definitelyString (getHeader req "X-Forwarded-For")
     else putStr ""
-  case determineQuery req of
-    Unauthorised -> respond $ responseLBS status301 [] "Unauthorised"
+  case determineQuery config req of
+    Unauthorised withPass -> respond $ responseLBS (if withPass then status401 else status403) [] "Unauthorised"
     Hours hours ->
       do
         time <- getCurrentTime

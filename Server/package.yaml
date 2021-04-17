@@ -31,6 +31,10 @@ dependencies:
 - time
 - dotenv
 - regex-tdfa
+- cryptohash-sha256
+- mtl
+- bson
+- modern-uri
 
 library:
   source-dirs: src

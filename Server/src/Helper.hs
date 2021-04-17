@@ -1,22 +1,15 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Helper (definitely, definitelyString, toString, customFormat, takeWrap, dropWrap, substr) where
+module Helper (definitelyString, toString, customFormat, takeWrap, dropWrap, substr) where
 
 import Data.List
+import Data.Maybe
 import Data.Time.Calendar
 import Data.Time.Clock
 import Text.Regex.TDFA
 
-day :: IO Day
-day = do
-  utctDay <$> getCurrentTime
-
-definitely :: Maybe a -> a -> a
-definitely (Just a) _ = a
-definitely Nothing def = def
-
 definitelyString :: Maybe String -> String
-definitelyString string = definitely string ""
+definitelyString = fromMaybe ""
 
 toString :: Show a => Either a String -> String
 toString (Right str) = str

@@ -7,14 +7,17 @@ where
 
 import Configuration.Dotenv (defaultConfig, loadFile)
 import Configuration.Dotenv.Environment
-import Data.ByteString.Lazy.UTF8 (fromString)
 import Data.ByteString.UTF8 (toString)
+import Data.Time
+import Database.MongoDB
+import GHC.Exts
 import Helper (definitelyString)
 import Network.HTTP.Types
 import Network.Wai
 import Network.Wai.Handler.Warp (run)
 import Request
 import Settings (Config (..), readSettings)
+import Transactions
 
 entry :: IO ()
 entry = do
@@ -28,17 +31,20 @@ entry = do
 
 app :: Config -> Request -> (Response -> IO ResponseReceived) -> IO ResponseReceived
 app config req respond = do
+  -- Connect to mongoDB
+  pipe <- connect $ host "127.0.0.1"
   if debug config
     then putStrLn $ "Recieved " ++ toString (requestMethod req) ++ " request from " ++ definitelyString (getHeader req "X-Forwarded-For")
     else putStr ""
   case determineQuery req of
-    Just (Hours hours) ->
-      let msg = "Submitted " ++ show hours ++ " hours"
-       in do
-            putStrLn msg
-            respond $ responseLBS status200 [] (fromString msg)
-    Just (Day day) ->
-      let hours = 0
-       in do
-            respond $ responseLBS status200 [] (fromString $ show hours)
-    Nothing -> respond $ responseLBS status400 [] "Invalid request"
+    Unauthorised -> respond $ responseLBS status301 [] "Unauthorised"
+    Hours hours ->
+      do
+        time <- getCurrentTime
+        access pipe master "timesheet" (saveHours hours (utctDay time))
+        respond $ responseLBS status200 [] (fromString $ "Submitted " ++ show hours ++ " hours on " ++ show (utctDay time))
+    Date day ->
+      do
+        hours <- access pipe master "timesheet" (getHoursForDay day)
+        respond $ responseLBS status200 [] (fromString $ show hours)
+    Invalid -> respond $ responseLBS status400 [] "Invalid request"

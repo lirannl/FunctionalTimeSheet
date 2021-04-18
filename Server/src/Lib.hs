@@ -23,7 +23,9 @@ entry :: IO ()
 entry = do
   maybeConfig <- do dotenv <- loadFile defaultConfig; env <- getEnvironment; return $ readSettings (env ++ dotenv)
   case maybeConfig of
+    -- Couldn't build config
     Nothing -> putStrLn "Environment values missing or invalid. Please set them / supply them via .env"
+    -- Run the app with the constructed config
     Just config -> do
       putStrLn $ "Now listening for incoming traffic on port " ++ show (port config)
       if debug config then putStrLn "Running in debug mode!" else putStr ""

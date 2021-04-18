@@ -26,20 +26,22 @@ substr start end orig = dropWrap start (takeWrap end orig)
 
 replaceMatches :: [String] -> [(String, String)] -> String -> Maybe String
 replaceMatches [] substitutions acc = Just acc
-replaceMatches (x : xs) substitutions acc =
-  if x =~ "{.*}"
-    then case find (\(src, _) -> substr 1 (-1) x == src) substitutions of
+replaceMatches (part : otherParts) substitutions acc =
+  if part =~ "{.*}"
+    then case find (\(origText, _) -> substr 1 (-1) part == origText) substitutions of
       -- Move the destination of the relevant substitution to the end of the accumulating string
-      Just (src, dst) -> replaceMatches xs (filter (\(orig, _) -> src /= orig) substitutions) (acc ++ dst)
+      Just (origText, replacement) -> replaceMatches otherParts (filter (\(orig, _) -> origText /= orig) substitutions) (acc ++ replacement)
       -- Replacement failed - all fields in the text must match a substitution
       Nothing -> Nothing
     else -- Move the current part to the end of the accumulating string
-      replaceMatches xs substitutions (acc ++ x)
+      replaceMatches otherParts substitutions (acc ++ part)
 
 customFormat :: [(String, String)] -> String -> Maybe String
 customFormat [] orig = Just orig
 customFormat substitutions orig =
-  -- Split the text into parts
-  let parts = getAllTextMatches (orig =~ "({[^{}]*})|([^{}]*)") :: [String]
-   in -- Start going through the parts of the text
-      replaceMatches (takeWrap (-1) parts) substitutions ""
+  -- Start going through the parts of the text
+  replaceMatches (takeWrap (-1) parts) substitutions initialAccumulator
+  where
+    initialAccumulator = ""
+    -- Split the text into parts
+    parts = getAllTextMatches (orig =~ "({[^{}]*})|([^{}]*)") :: [String]

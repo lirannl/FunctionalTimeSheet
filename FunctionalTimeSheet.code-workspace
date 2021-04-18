@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"path": "Client"
+		},
+		{
+			"path": "Server"
+		}
+	],
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				// F6
+				"isBackground": true,
+				"type": "shell",
+				"label": "haskell watch",
+				"options": {
+					"cwd": "../Server"
+				},
+				"command": "stack build --test --no-run-tests --file-watch"
+			}
+		]
+	}
+}

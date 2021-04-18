@@ -1,6 +1,6 @@
 name:                funcserver
 version:             0.1.0.0
-github:              "lirannl/funcserver"
+github:              "lirannl/FunctionalTimeSheet"
 license:             GPL3
 author:              "Liran Piade"
 maintainer:          "liranpiade@gmail.com"

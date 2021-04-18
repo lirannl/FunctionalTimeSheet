@@ -48,3 +48,5 @@ readSettings env =
                     debug = case var "DEBUG" of Nothing -> False; Just "" -> False; Just _ -> True,
                     ..
                   }
+            _ -> Nothing
+        _ -> Nothing

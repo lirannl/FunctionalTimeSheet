@@ -4,7 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Request (getHeader, determineQuery, AppReq (..)) where
+module Request (getHeader, determineQuery, appPolicy, AppReq (..)) where
 
 import Crypto.Hash.SHA256
 import Data.Aeson
@@ -15,9 +15,18 @@ import Data.CaseInsensitive
 import Data.List
 import Data.Time
 import GHC.Generics
+import Helper (startsWith)
 import Network.Wai
+import Network.Wai.Middleware.Static
 import Settings
 import Text.Read
+
+appPolicy :: Policy
+appPolicy =
+  -- Don't match any path starting with "api"
+  predicate (not . (`startsWith` "api")) >-> serve "res/index.html"
+  where
+    serve (path :: FilePath) = policy (\_ -> Just path)
 
 -- Get a given value for a header (if it exists)
 getHeader :: Request -> String -> Maybe String

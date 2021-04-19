@@ -1,12 +1,15 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Helper (definitelyString, toString, customFormat, takeWrap, dropWrap, substr) where
+module Helper (definitelyString, toString, customFormat, takeWrap, dropWrap, substr, startsWith) where
 
 import Data.List
 import Data.Maybe
 import Data.Time.Calendar
 import Data.Time.Clock
 import Text.Regex.TDFA
+
+startsWith :: String -> String -> Bool
+startsWith text str = text =~ ("^" ++ str)
 
 definitelyString :: Maybe String -> String
 definitelyString = fromMaybe ""

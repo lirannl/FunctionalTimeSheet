@@ -6,12 +6,14 @@ import Configuration.Dotenv (defaultConfig, loadFile)
 import Configuration.Dotenv.Environment
 import Data.ByteString.UTF8 (toString)
 import Data.Time
-import Database.MongoDB
+import Database.MongoDB (access, connect, host, master)
+import Debug.Trace
 import GHC.Exts
 import Helper (definitelyString)
 import Network.HTTP.Types
 import Network.Wai
 import Network.Wai.Handler.Warp (run)
+import Network.Wai.Middleware.Static
 import Request
 import Settings (Config (..), readSettings)
 import Transactions
@@ -34,7 +36,11 @@ entry = do
       if debug config
         then putStrLn "Running in debug mode!"
         else putStr ""
-      run (port config) (app config)
+      run (port config) $ 
+      -- Try serving static files
+        staticPolicy (addBase "res/") $ 
+      -- If one wasn't found, apply the app's policy
+        staticPolicy appPolicy (app config)
 
 app ::
   Config ->

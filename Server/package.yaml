@@ -23,6 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - warp >= 3.3.0 && < 4
 - wai
+- wai-middleware-static
 - bytestring
 - http-types
 - utf8-string

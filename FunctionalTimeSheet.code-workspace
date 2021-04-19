@@ -11,15 +11,34 @@
 		"version": "2.0.0",
 		"tasks": [
 			{
-				// F6
-				"isBackground": true,
 				"type": "shell",
 				"label": "haskell watch",
 				"options": {
 					"cwd": "../Server"
 				},
+				"isBackground": true,
 				"command": "stack build --test --no-run-tests --file-watch"
+			},
+			{
+				"type": "shell",
+				"label": "build elm",
+				"options": {
+					"cwd": "../Client"
+				},
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"command": "elm make src/Main.elm --optimize"
+			},
+			{
+				"type": "shell",
+				"label": "run changes",
+				"options": {
+					"cwd": "../Server"
+				},
+				"command": "find .stack-work -name exe | entr -r stack run"
 			}
 		]
-	}
+	},
 }

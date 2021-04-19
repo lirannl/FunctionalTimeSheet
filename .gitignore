@@ -2,4 +2,7 @@ Server/.stack-work
 Server/*.cabal
 Server/*.lock
 Server/.vscode
+Server/res
+Client/elm-stuff
+Client/index.html
 */.env

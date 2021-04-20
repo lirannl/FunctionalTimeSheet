@@ -69,13 +69,13 @@ app config req respond = do
           )
           []
           "Unauthorised"
-    HoursSubmission hours -> do
+    HoursSubmission (hours, amountPaid) -> do
       time <- getCurrentTime
       let responseText = fromString ("Submitted " ++ show hours ++ " hours on " ++ show (utctDay time))
        in do
-            access pipe master "timesheet" (saveHours hours (utctDay time))
+            access pipe master "timesheet" (saveWork hours amountPaid (utctDay time))
             respond $ responseLBS status200 [] responseText
     DateQuery day -> do
-      hours <- access pipe master "timesheet" (getHoursForDay day)
-      respond $ responseLBS status200 [] (fromString $ show hours)
+      dayData <- access pipe master "timesheet" (getDataForDay day)
+      respond $ responseLBS status200 [] (fromString $ show dayData)
     Invalid -> respond $ responseLBS status400 [] "Invalid request"

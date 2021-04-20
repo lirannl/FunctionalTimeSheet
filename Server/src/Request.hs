@@ -12,8 +12,8 @@ import Data.ByteString (ByteString)
 import Data.ByteString.Lazy (fromStrict)
 import Data.ByteString.UTF8 (fromString, toString)
 import Data.CaseInsensitive
-import Data.List ( find )
-import Data.Time ( Day, defaultTimeLocale, parseTimeM )
+import Data.List (find)
+import Data.Time (Day, defaultTimeLocale, parseTimeM)
 import GHC.Generics
 import Helper (startsWith)
 import Network.Wai
@@ -35,10 +35,11 @@ getHeader req name =
     Just (_, value) -> Just (toString value)
     Nothing -> Nothing
 
-data AppReq = HoursSubmission Int | DateQuery Day | Unauthorised Bool | Invalid
+data AppReq = HoursSubmission (Int, Maybe Int) | DateQuery Day | Unauthorised Bool | Invalid
 
-newtype Body = Body
-  { hours :: Int
+data Body = Body
+  { hours :: Int,
+    amount :: Maybe Int
   }
   deriving (Generic, Show, ToJSON, FromJSON)
 
@@ -62,5 +63,5 @@ determineAuthorisedQuery req rawBody =
       Just (d :: Day) -> DateQuery d
       _ -> Invalid
     (methodPost, _) -> case decode $ fromStrict rawBody of
-      Just Body {hours} -> HoursSubmission hours
+      Just Body {hours, amount} -> HoursSubmission (hours, amount)
       _ -> Invalid

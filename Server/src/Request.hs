@@ -24,7 +24,7 @@ import Text.Read
 appPolicy :: Policy
 appPolicy =
   -- Don't match any path starting with "api"
-  predicate (not . (`startsWith` "api")) >-> serve "res/index.html"
+  predicate (not . (`startsWith` "api/")) >-> predicate (/= "api") >-> serve "res/index.html"
   where
     serve (path :: FilePath) = policy (\_ -> Just path)
 

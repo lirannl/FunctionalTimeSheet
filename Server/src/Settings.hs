@@ -17,7 +17,8 @@ data Config = Config
   { port :: Int,
     debug :: Bool,
     mongoURL :: String,
-    passwordHash :: ByteString
+    passwordHash :: ByteString,
+    defaultPage :: String
   }
   deriving (Show)
 
@@ -35,11 +36,14 @@ parsePort var =
         Just (port :: Int) -> port
         _ -> def
 
+-- Required environment variables in the order in which they must be read
+variables = ["MONGO_USER", "MONGO_PASSWORD", "MONGO_URL", "DB_NAME", "PASSWORD_HASH", "DEFAULT_PAGE"]
+
 readSettings :: [(String, String)] -> Maybe Config
 readSettings env =
   let var = readFromEnv env
-   in case mapM var ["MONGO_USER", "MONGO_PASSWORD", "MONGO_URL", "DB_NAME", "PASSWORD_HASH"] of
-        Just [mongoUsername, mongoPassword, url, dbName, passwordHashString] ->
+   in case mapM var variables of
+        Just [mongoUsername, mongoPassword, url, dbName, passwordHashString, defaultPage] ->
           case (customFormat [("user", mongoUsername), ("password", mongoPassword), ("dbName", dbName)] url, decodeHex $ Text.pack passwordHashString) of
             (Just mongoURL, Just passwordHash) ->
               Just

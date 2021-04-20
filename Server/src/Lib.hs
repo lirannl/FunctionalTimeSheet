@@ -40,7 +40,7 @@ entry = do
       -- Try serving static files
         staticPolicy (addBase "res/") $ 
       -- If one wasn't found, apply the app's policy
-        staticPolicy appPolicy (app config)
+        staticPolicy (appPolicy config) (app config)
 
 app ::
   Config ->

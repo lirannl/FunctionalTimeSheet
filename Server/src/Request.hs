@@ -12,8 +12,8 @@ import Data.ByteString (ByteString)
 import Data.ByteString.Lazy (fromStrict)
 import Data.ByteString.UTF8 (fromString, toString)
 import Data.CaseInsensitive
-import Data.List
-import Data.Time
+import Data.List ( find )
+import Data.Time ( Day, defaultTimeLocale, parseTimeM )
 import GHC.Generics
 import Helper (startsWith)
 import Network.Wai
@@ -21,10 +21,10 @@ import Network.Wai.Middleware.Static
 import Settings
 import Text.Read
 
-appPolicy :: Policy
-appPolicy =
+appPolicy :: Config -> Policy
+appPolicy config =
   -- Don't match any path starting with "api"
-  predicate (not . (`startsWith` "api/")) >-> predicate (/= "api") >-> serve "res/index.html"
+  predicate (not . (`startsWith` "api/")) >-> predicate (/= "api") >-> serve (defaultPage config)
   where
     serve (path :: FilePath) = policy (\_ -> Just path)
 
